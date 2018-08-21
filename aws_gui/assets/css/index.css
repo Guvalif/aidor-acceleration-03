@@ -1,0 +1,33 @@
+/*!
+  Copyright (c) 2018,
+
+  - Kazuyuki TAKASE (https://github.com/Guvalif)
+  - PLEN Project Company Inc. (https://plen.jp)
+
+  This software is released under the MIT License.
+  See also: http://opensource.org/licenses/mit-license.php
+*/
+
+#display {
+  display: block;
+  margin: 0 auto;
+  border-radius: 10px;
+  width: 640px;
+}
+
+#servo-slider {
+  display: block;
+  margin: 10px auto;
+  width: 640px;
+}
+
+#sensor-viewer {
+  display: block;
+  margin: 10px auto;
+  width: 640px;
+}
+
+.sensor-viewer-element {
+  width: 160px;
+  float: left;
+}

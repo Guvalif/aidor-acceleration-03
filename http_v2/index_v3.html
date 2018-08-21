@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="author" content="Kazuyuki TAKASE">
+  <meta name="copyright" content="PLEN Project Comapny Inc, and all authors.">
+  <link rel="license" href="http://opensource.org/licenses/mit-license.php">
+
+  <script>
+    var getImage = function()
+    {
+      var timestamp = Date.now().toString();
+
+      document.getElementById('display').src = '/v2/image?' + timestamp;
+    };
+
+    var getSensor = function()
+    {
+      var request = new XMLHttpRequest();
+
+      request.onload = function()
+      {
+        var json = JSON.parse(request.responseText);
+
+        var $light  = document.getElementById('light');
+        var $thermo = document.getElementById('thermo');
+        var $volume = document.getElementById('volume');
+        var $motion = document.getElementById('motion');
+
+        $light.innerHTML  = 'Light: '  + json.data.light.toString().slice(0, 5);
+        $thermo.innerHTML = 'Thermo: ' + json.data.thermo.toString().slice(0, 5);
+        $volume.innerHTML = 'Volume: ' + json.data.volume.toString().slice(0, 5);
+        $motion.innerHTML = 'Motion: ' + json.data.motion.toString().slice(0, 5);
+      };
+
+      request.open('GET', '/v2/sensor');
+      request.send();
+    };
+
+    var putServo = function(value)
+    {
+      var request = new XMLHttpRequest();
+
+      request.open('PUT', '/v2/servo');
+      request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+      request.send(JSON.stringify({ 'pwm': Number(value) }));
+    };
+
+    window.onload = function()
+    {
+      setInterval(getImage, 100);
+      setInterval(getSensor, 1000);
+    };
+  </script>
+
+  <style>
+    #display {
+      display: block;
+      margin: 0 auto;
+      border-radius: 10px;
+      width: 640px;
+    }
+
+    #servo-slider {
+      display: block;
+      margin: 10px auto;
+      width: 640px;
+    }
+
+    #sensor-viewer {
+      display: block;
+      margin: 10px auto;
+      width: 640px;
+    }
+
+    .sensor-viewer-element {
+      width: 160px;
+      float: left;
+    }
+  </style>
+</head>
+
+<body>
+  <img id="display" src="/v2/image">
+  <input id="servo-slider" type="range" min="25" max="125" step="5" onchange="putServo(this.value)">
+  <div id="sensor-viewer">
+    <div class="sensor-viewer-element" id="light">Light: ---</div>
+    <div class="sensor-viewer-element" id="thermo">Thermo: ---</div>
+    <div class="sensor-viewer-element" id="volume">Volume: ---</div>
+    <div class="sensor-viewer-element" id="motion">Motion: ---</div>
+  </div>
+</body>
+
+</html>
