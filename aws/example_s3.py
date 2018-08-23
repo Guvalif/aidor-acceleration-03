@@ -17,6 +17,7 @@ from cv2 import VideoCapture, imencode
 from wiringpi import *
 
 from adc import analogRead
+from aws_credentials import *
 
 
 # 定数定義・初期化処理
@@ -27,11 +28,6 @@ VOLUME_PIN   = 2
 MOTION_PIN   = 26
 CAMERA_INDEX = 0
 
-S3_ACCESS_KEY_ID     = 'PUT_YOUR_ACCESS_KEY_ID_HERE'
-S3_SECRET_ACCESS_KEY = 'PUT_YOUR_SECRET_KEY_HERE'
-REGION_NAME          = 'ap-northeast-1'
-BUCKET_NAME          = 'raspberry-pi-cloud-NN'
-
 
 camera = VideoCapture(CAMERA_INDEX)
 
@@ -41,8 +37,7 @@ session = Session(
     region_name=REGION_NAME
 )
 
-s3     = session.resource('s3')
-bucket = s3.Bucket(BUCKET_NAME)
+s3_bucket = session.resource('s3').Bucket(S3_BUCKET_NAME)
 
 wiringPiSetupGpio()
 
@@ -80,14 +75,14 @@ def get_image(frame_buffer=5):
 # メインループ
 # =============================================================================
 while True:
-    s3_image = bucket.Object(make_filename('image', 'jpg'))
+    s3_image = s3_bucket.Object(make_filename('image', 'jpg'))
     s3_image.put(
         ACL='public-read',
         Body=get_image(),
         ContentType='image/jpg'
     )
 
-    s3_sensor_json = bucket.Object(make_filename('sensor', 'json'))
+    s3_sensor_json = s3_bucket.Object(make_filename('sensor', 'json'))
     s3_sensor_json.put(
         ACL='public-read',
         Body=get_sensor_json(),
