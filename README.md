@@ -51,9 +51,10 @@ How to Use
     - `index_v2.html`: HTML/CSSを記述したGUI
     - `index_v3.html`: HTML/CSS/JavaScriptを記述したGUI
 - `aws`
+    - `aws_credentials.py`: AWSの認証情報を記述するライブラリ
     - `example_s3.py`: S3にセンシングしたデータをアップロードするプログラム
-    - `example_s3_with_mqtt.py`: `example_s3.py` の挙動に加えて、AWS IoT Coreにメッセージを送るプログラム
-    - `example_servo_with_mqtt.py`: AWS IoT Coreからメッセージを受け取り、サーボモータを動かすプログラム
+    - `example_aws.py`: `example_s3.py` の挙動に加えて、AWS IoT Coreとのメッセージ送受信，およびサーボモータを動かすプログラム
+    - `root-ca.crt`: AWS IoT Coreへアクセスするためのルート証明書
 - `aws_gui`
     - `assets`: CSS/JavaScript/画像素材を配置したフォルダ
     - `404.html`: エラーページを記述したHTMLファイル
