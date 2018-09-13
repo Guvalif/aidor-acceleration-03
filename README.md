@@ -4,7 +4,7 @@ AIDOR ACCELERATION 基礎知識講座 第3回 | サンプルプログラム
 What's This?
 -------------------------------------------------------------------------------
 
-IoT・ロボットビジネス創出プログラム「[AIDOR ACCELERATION](https://www.imedio.or.jp/acceleration)」における、
+IoT・ロボットビジネス創出プログラム「[AIDOR ACCELERATION](https://teqs.jp/acceleration)」における、
 2018年度 基礎知識講座 第3回で使用したサンプルプログラムです。
 
 
@@ -35,7 +35,7 @@ sudo pip install paste boto3 AWSIoTPythonSDK
 How to Use
 -------------------------------------------------------------------------------
 
-[ダウンロードリンク](https://github.com/Guvalif/imedio_0822/archive/master.zip)をクリックすることで、
+[ダウンロードリンク](https://github.com/Guvalif/aidor-acceleration-03/archive/master.zip)をクリックすることで、
 プログラムを一式ダウンロードできます。
 
 **ターミナル**上で`sudo idle`と入力し、**Python 2 IDLE**を起動します。
@@ -51,9 +51,10 @@ How to Use
     - `index_v2.html`: HTML/CSSを記述したGUI
     - `index_v3.html`: HTML/CSS/JavaScriptを記述したGUI
 - `aws`
+    - `aws_credentials.py`: AWSの認証情報を記述するライブラリ
     - `example_s3.py`: S3にセンシングしたデータをアップロードするプログラム
-    - `example_s3_with_mqtt.py`: `example_s3.py` の挙動に加えて、AWS IoT Coreにメッセージを送るプログラム
-    - `example_servo_with_mqtt.py`: AWS IoT Coreからメッセージを受け取り、サーボモータを動かすプログラム
+    - `example_aws.py`: `example_s3.py` の挙動に加えて、AWS IoT Coreとのメッセージ送受信，およびサーボモータを動かすプログラム
+    - `root-ca.crt`: AWS IoT Coreへアクセスするためのルート証明書
 - `aws_gui`
     - `assets`: CSS/JavaScript/画像素材を配置したフォルダ
     - `404.html`: エラーページを記述したHTMLファイル
