@@ -4,7 +4,7 @@ AIDOR ACCELERATION 基礎知識講座 第3回 | サンプルプログラム
 What's This?
 -------------------------------------------------------------------------------
 
-IoT・ロボットビジネス創出プログラム「[AIDOR ACCELERATION](https://www.imedio.or.jp/acceleration)」における、
+IoT・ロボットビジネス創出プログラム「[AIDOR ACCELERATION](https://teqs.jp/acceleration)」における、
 2018年度 基礎知識講座 第3回で使用したサンプルプログラムです。
 
 
@@ -35,7 +35,7 @@ sudo pip install paste boto3 AWSIoTPythonSDK
 How to Use
 -------------------------------------------------------------------------------
 
-[ダウンロードリンク](https://github.com/Guvalif/imedio_0822/archive/master.zip)をクリックすることで、
+[ダウンロードリンク](https://github.com/Guvalif/aidor-acceleration-03/archive/master.zip)をクリックすることで、
 プログラムを一式ダウンロードできます。
 
 **ターミナル**上で`sudo idle`と入力し、**Python 2 IDLE**を起動します。
