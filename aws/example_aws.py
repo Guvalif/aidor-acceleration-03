@@ -83,7 +83,7 @@ def get_image(frame_buffer=5):
 def on_message(ws, message):
     message_json = loads(message)
 
-    if message_json['sender'] == IOT_HOST_ID and message_json['target'] == IOT_CLIENT_ID:
+    if message_json['sender'] == IOT_HOST_ID and (message_json['target'] == IOT_CLIENT_ID or message_json['target'] == '*'):
         pwm = message_json['data']
 
         pwmWrite(SERVO_PIN, max(min(pwm, 123), 26))
