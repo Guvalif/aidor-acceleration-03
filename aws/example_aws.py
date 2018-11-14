@@ -7,14 +7,15 @@ __license__   = 'The MIT License (http://opensource.org/licenses/mit-license.php
 
 # 外部プログラムの読み込み
 # =============================================================================
-from json import dumps
+from json import dumps, loads
 from random import choice
 from string import ascii_letters, digits
+from thread import start_new_thread
 import time
 
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from boto3.session import Session
 from cv2 import VideoCapture, imencode
+from websocket import WebSocketApp
 from wiringpi import *
 
 from adc import analogRead
@@ -30,11 +31,6 @@ MOTION_PIN   = 26
 SERVO_PIN    = 18
 CAMERA_INDEX = 0
 
-IOT_CLIENT_ID  = 'raspberry-pi'
-IOT_HOST_ID    = 'raspberry-pi-cloud-gui'
-IOT_TOPIC_NAME = 'raspberry-pi-cloud/mqtt-bridge'
-
-
 camera = VideoCapture(CAMERA_INDEX)
 
 session = Session(
@@ -44,16 +40,6 @@ session = Session(
 )
 
 s3_bucket = session.resource('s3').Bucket(S3_BUCKET_NAME)
-
-iot_client = AWSIoTMQTTClient(IOT_CLIENT_ID, useWebsocket=True)
-iot_client.configureEndpoint(IOT_ENDPOINT, 443)
-iot_client.configureIAMCredentials(IOT_ACCESS_KEY_ID, IOT_SECRET_ACCESS_KEY)
-iot_client.configureCredentials('root-ca.crt')
-iot_client.configureOfflinePublishQueueing(-1)
-iot_client.configureDrainingFrequency(2)
-iot_client.configureConnectDisconnectTimeout(10)
-iot_client.configureMQTTOperationTimeout(5)
-iot_client.connect()
 
 wiringPiSetupGpio()
 pinMode(SERVO_PIN, PWM_OUTPUT)
@@ -65,7 +51,7 @@ pwmSetClock(375)
 # 独自命令の定義
 # =============================================================================
 def make_hash(n=4):
-    return ''.join([ choice(ascii_letters + digits) for _ in xrange(n) ])
+    return ''.join( choice(ascii_letters + digits) for _ in xrange(n) )
 
 
 def make_filename(category, ext):
@@ -92,73 +78,64 @@ def get_image(frame_buffer=5):
     return image.tobytes()
 
 
-def make_credential_js():
-    body = """
-        var IOT_ENDPOINT          = '{}';
-        var IOT_ACCESS_KEY_ID     = '{}';
-        var IOT_SECRET_ACCESS_KEY = '{}';
-    """ \
-    .format(
-        IOT_ENDPOINT,
-        IOT_ACCESS_KEY_ID,
-        IOT_SECRET_ACCESS_KEY
-    )
+# WebSocketクライアントの起動
+# =============================================================================
+def on_message(ws, message):
+    message_json = loads(message)
 
-    s3_credential_js = s3_bucket.Object('assets/js/aws-iot-core-credential.js')
-    s3_credential_js.put(
-        ACL='public-read',
-        Body=body,
-        ContentEncoding='utf-8',
-        ContentType='text/javascript'
-    )
-
-
-def subscribe_callback(client, userdata, message):
-    message_json = loads(message.payload)
-
-    if message_json['sender'] == IOT_HOST_ID:
+    if message_json['sender'] == IOT_HOST_ID and message_json['target'] == IOT_CLIENT_ID:
         pwm = message_json['data']
 
         pwmWrite(SERVO_PIN, max(min(pwm, 123), 26))
 
 
-# メインループ
-# =============================================================================
-make_credential_js()
+def on_open(ws):
+    def main(*args):
+        while True:
+            image_name = make_filename('image', 'jpg')
 
-iot_client.subscribe(IOT_TOPIC_NAME, 1, subscribe_callback)
-
-while True:
-    image_name = make_filename('image', 'jpg')
-
-    s3_image = s3_bucket.Object(image_name)
-    s3_image.put(
-        ACL='public-read',
-        Body=get_image(),
-        ContentType='image/jpg'
-    )
+            s3_image = s3_bucket.Object(image_name)
+            s3_image.put(
+                ACL='public-read',
+                Body=get_image(),
+                ContentType='image/jpg'
+            )
 
 
-    sensor_json_name = make_filename('sensor', 'json')
+            sensor_json_name = make_filename('sensor', 'json')
 
-    s3_sensor_json = s3_bucket.Object(sensor_json_name)
-    s3_sensor_json.put(
-        ACL='public-read',
-        Body=get_sensor_json(),
-        ContentEncoding='utf-8',
-        ContentType='application/json'
-    )
-
-
-    iot_message = dumps({
-        'sender': IOT_CLIENT_ID,
-        'data': {
-            'image': image_name,
-            'sensor': sensor_json_name
-        }
-    })
-
-    iot_client.publish(IOT_TOPIC_NAME, iot_message, 1)
+            s3_sensor_json = s3_bucket.Object(sensor_json_name)
+            s3_sensor_json.put(
+                ACL='public-read',
+                Body=get_sensor_json(),
+                ContentEncoding='utf-8',
+                ContentType='application/json'
+            )
 
 
-    time.sleep(5)
+            message_json = dumps({
+                'sender': IOT_CLIENT_ID,
+                'target': IOT_HOST_ID,
+                'data': {
+                    'image': image_name,
+                    'sensor': sensor_json_name
+                }
+            })
+
+            ws.send(message_json)
+
+            time.sleep(5)
+
+    start_new_thread(main, ())
+
+
+ws = WebSocketApp(
+    WS_ENDPOINT,
+    on_message=on_message,
+    on_error=lambda _0, _1: None,
+    on_close=lambda _: None
+)
+
+ws.on_open = on_open
+
+ws.run_forever()
