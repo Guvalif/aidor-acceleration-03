@@ -17,8 +17,8 @@ S3_ACCESS_KEY_ID     = 'PUT_YOUR_S3_ACCESS_KEY_ID_HERE'
 S3_SECRET_ACCESS_KEY = 'PUT_YOUR_S3_SECRET_KEY_HERE'
 
 
-# AWS IoT Coreの認証情報 (IAM: raspberry-pi-cloud-iot)
+# WebSocketサーバの認証情報
 # =============================================================================
-IOT_ENDPOINT          = 'PUT_YOUR_IOT_ENDPOINT_HERE'
-IOT_ACCESS_KEY_ID     = 'PUT_YOUR_IOT_ACCESS_KEY_ID_HERE'
-IOT_SECRET_ACCESS_KEY = 'PUT_YOUR_IOT_SECRET_KEY_HERE'
+WS_ENDPOINT   = 'wss://raspberry-pi-cloud.herokuapp.com/msg-bridge'
+IOT_CLIENT_ID = 'raspberry-pi-NN'
+IOT_HOST_ID   = 'raspberry-pi-cloud-gui'

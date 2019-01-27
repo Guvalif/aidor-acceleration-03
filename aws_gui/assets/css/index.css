@@ -8,6 +8,12 @@
   See also: http://opensource.org/licenses/mit-license.php
 */
 
+#device-changer {
+  display: block;
+  margin: 10px auto;
+  width: 640px;
+}
+
 #display {
   display: block;
   margin: 0 auto;

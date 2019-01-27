@@ -45,7 +45,7 @@ wiringPiSetupGpio()
 # 独自命令の定義
 # =============================================================================
 def make_hash(n=4):
-    return ''.join([ choice(ascii_letters + digits) for _ in xrange(n) ])
+    return ''.join( choice(ascii_letters + digits) for _ in xrange(n) )
 
 
 def make_filename(category, ext):
